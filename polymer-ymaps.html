@@ -1,0 +1,68 @@
+<link rel="import" href="ymaps-api.html">
+<link rel="import" href="http://www.polymer-project.org/components/polymer/polymer.html">
+
+<!--
+Element providing yandex-map for your site.
+
+##### Example
+```
+<yandex-map center="{{center}}" zoom="{{zoom}}"></yandex-map>
+```
+@element yandex-map
+@status alpha
+@homepage http://just-boris.github.io/polymer-ymaps
+-->
+<polymer-element name="yandex-map" attributes="center zoom">
+  <template>
+    <style id="style">
+      :host {
+        position: relative;
+      }
+      #map {
+        position: absolute;
+        overflow: hidden;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+    <div id="map"></div>
+  </template>
+  <script>
+    Polymer('yandex-map', {
+
+      /**
+       * Center of the map. Array with to items &mdash; latitude and longitude
+       *
+       * @attribute center
+       * @type Array
+       */
+      center: [0, 0],
+
+      /**
+       * Zoom.
+       *
+       * @attribute zoom
+       * @type Number
+       */
+      zoom: 11,
+
+      created: function() {
+        ymaps.ready(function() {
+          this.grabStyles();
+          new ymaps.Map(this.$.map, {
+            center: this.center,
+            zoom: this.zoom
+          })
+        }, this);
+      },
+
+      grabStyles: function() {
+        var styles = document.head.querySelectorAll('style'),
+            ymapsStyle = Array.prototype.slice.apply(styles).filter(function(tag){return tag.textContent.match(/^.ymaps-/)})[0];
+        this.$.style.textContent +=ymapsStyle.textContent;
+      }
+    });
+  </script>
+</polymer-element>
