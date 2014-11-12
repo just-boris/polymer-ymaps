@@ -49,19 +49,30 @@ Element providing yandex-map for your site.
       zoom: 6,
 
       created: function() {
+        var self = this;
         ymaps.ready(function() {
-          this.grabStyles();
-          new ymaps.Map(this.$.map, {
-            center: this.center,
-            zoom: this.zoom
-          })
-        }, this);
+          self.map = self.createMap();
+          setTimeout(function() {
+            self.grabStyles();  
+          }, 500);
+        });
+      },
+
+      createMap: function() {
+        return new ymaps.Map(this.$.map, {
+          center: this.center,
+          zoom: this.zoom
+        });
       },
 
       grabStyles: function() {
         var styles = document.head.querySelectorAll('style'),
-            ymapsStyle = Array.prototype.slice.apply(styles).filter(function(tag){return tag.textContent.match(/^.ymaps-/)})[0];
-        this.$.style.textContent +=ymapsStyle.textContent;
+            ymapsStyle = Array.prototype.slice.apply(styles).filter(function(tag){
+              return tag.textContent.match(/^.ymaps-/);
+            }).map(function(tag) {
+              return tag.textContent;
+            }).join('\n');
+        this.$.style.textContent +=ymapsStyle;
       }
     });
   </script>
