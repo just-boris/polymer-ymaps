@@ -6,13 +6,13 @@ Element providing yandex-map for your site.
 
 ##### Example
 ```
-<yandex-map center="{{center}}" zoom="{{zoom}}"></yandex-map>
+<yandex-map latitude="{{latitude}}" longitude="{{longitude}}" zoom="{{zoom}}"></yandex-map>
 ```
 @element yandex-map
 @status alpha
 @homepage http://just-boris.github.io/polymer-ymaps
 -->
-<polymer-element name="yandex-map" attributes="center zoom">
+<polymer-element name="yandex-map" attributes="latitude longitude zoom">
   <template>
     <style id="style">
       :host {
@@ -28,9 +28,15 @@ Element providing yandex-map for your site.
       }
     </style>
     <div id="map"></div>
+    <content id="markers" select="yandex-map-marker"></content>
   </template>
   <script>
     (function () {
+      if (!Array.from) {
+        Array.from = function (object) {
+          return [].slice.call(object);
+        };
+      }
       var stylesWatcher = {
         components: [],
         styles: "",
@@ -41,11 +47,12 @@ Element providing yandex-map for your site.
         onMutate: function (mutations) {
           var newStyles = mutations.reduce(function (total, mutation) {
             if (mutation.addedNodes.length > 0) {
-              total += Array.prototype.slice.apply(mutation.addedNodes).filter(function (tag) {
-                return tag.tagName.toLowerCase() === 'style' && tag.textContent.match(/^.ymaps-/)
+              total += Array.from(mutation.addedNodes).filter(function (tag) {
+                return tag.tagName.toLowerCase() === 'style' && tag.textContent.match(/^.ymaps/)
               }).map(function(tag) {
+                console.log(tag);
                 return tag.textContent;
-              }).join('\n');
+              }).join('\n')+'\n';
             }
             return total;
           }, "");
@@ -69,36 +76,122 @@ Element providing yandex-map for your site.
       Polymer('yandex-map', {
 
         /**
-         * Center of the map. Array with to items &mdash; latitude and longitude
+         * A latitude of the map center
          *
-         * @attribute center
-         * @type Array
+         * @attribute latitude
+         * @type Number
          */
-        center: [42, 24],
+        latitude: 42,
 
         /**
-         * Zoom.
+         * A longitude of the map center
+         *
+         * @attribute longitude
+         * @type Number
+         */
+        longitude: 24,
+
+        /**
+         * Zoom of the map
          *
          * @attribute zoom
          * @type Number
          */
         zoom: 6,
 
+        /**
+         * Array containing map markers
+         * _Do not use it to add markers. Use element `yandex-map-marker` instead_
+         * @attribute placemarks
+         * @type Array
+         */
+        placemarks: [],
+
         ready: function () {
           stylesWatcher.register(this);
-          var self = this;
+          Array.from(this.$.markers.getDistributedNodes()).forEach(this.bindSelfToMarker, this);
+          new MutationObserver(this.onChangeContent.bind(this))
+              .observe(this, {childList: true});
           ymaps.ready(function () {
-            self.map = self.createMap();
-          });
+            this.map = this.createMap();
+          }, this);
         },
 
         createMap: function () {
           return new ymaps.Map(this.$.map, {
-            center: this.center,
+            center: [this.latitude, this.longitude],
             zoom: this.zoom
           });
+        },
+
+        onChangeContent: function(mutations) {
+          mutations.forEach(function(mutation) {
+            Array.from(mutation.addedNodes).forEach(function(node) {
+              if(node.tagName === 'yandex-map-marker') {
+                this.bindSelfToMarker(node);
+              }
+            }, this);
+          }, this);
+        },
+
+        bindSelfToMarker: function(marker) {
+          marker.mapCtrl = this;
+        },
+
+        addMarker: function (marker) {
+          this.placemarks.push(marker);
+          if(this.map) {
+            this.map.geoObjects.add(marker);
+          }
+        },
+
+        removeMarker: function(marker) {
+          var index = this.placemarks.indexOf(marker);
+          if(index > -1) {
+            this.placemarks.splice(index, 1);
+            if(this.map) {
+              this.map.geoObjects.remove(marker);
+            }
+          }
         }
       });
     })();
+  </script>
+</polymer-element>
+
+
+<!--
+Element representing map marker for <yandex-map>.
+It should be placed only inside <yandex-map> element
+
+##### Example
+```
+<yandex-map latitude="{{latitude}}" longitude="{{longitude}}" zoom="{{zoom}}">
+  <yandex-map-marker latitude={{marker.latitude}} longitude={{marker.longitude}}></yandex-map-marker>
+</yandex-map>
+```
+
+
+@element yandex-map-marker
+@status alpha
+@homepage http://just-boris.github.io/polymer-ymaps
+-->
+<polymer-element name="yandex-map-marker" attributes="latitude longitude">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+  </template>
+  <script>
+    Polymer({
+      ready: function() {
+        ymaps.ready(function() {
+          var placemark = new ymaps.Placemark([this.latitude, this.longitude]);
+          this.mapCtrl.addMarker(placemark);
+        }, this);
+      }
+    });
   </script>
 </polymer-element>
