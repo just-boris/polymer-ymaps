@@ -30,50 +30,75 @@ Element providing yandex-map for your site.
     <div id="map"></div>
   </template>
   <script>
-    Polymer('yandex-map', {
+    (function () {
+      var stylesWatcher = {
+        components: [],
+        styles: "",
+        initialize: function () {
+          var observer = new MutationObserver(this.onMutate.bind(this));
+          observer.observe(document.head, {childList: true});
+        },
+        onMutate: function (mutations) {
+          var newStyles = mutations.reduce(function (total, mutation) {
+            if (mutation.addedNodes.length > 0) {
+              total += Array.prototype.slice.apply(mutation.addedNodes).filter(function (tag) {
+                return tag.tagName.toLowerCase() === 'style' && tag.textContent.match(/^.ymaps-/)
+              }).map(function(tag) {
+                return tag.textContent;
+              }).join('\n');
+            }
+            return total;
+          }, "");
+          if(newStyles.length > 0) {
+            this.components.forEach(function(component) {
+              this.applyStyle(component, newStyles);
+            }, this);
+            this.styles += newStyles;
+          }
+        },
+        applyStyle: function(component, style) {
+          component.$.style.textContent += style;
+        },
+        register: function (component) {
+          this.applyStyle(component, this.styles);
+          this.components.push(component);
+        }
+      };
+      stylesWatcher.initialize();
 
-      /**
-       * Center of the map. Array with to items &mdash; latitude and longitude
-       *
-       * @attribute center
-       * @type Array
-       */
-      center: [42, 24],
+      Polymer('yandex-map', {
 
-      /**
-       * Zoom.
-       *
-       * @attribute zoom
-       * @type Number
-       */
-      zoom: 6,
+        /**
+         * Center of the map. Array with to items &mdash; latitude and longitude
+         *
+         * @attribute center
+         * @type Array
+         */
+        center: [42, 24],
 
-      created: function() {
-        var self = this;
-        ymaps.ready(function() {
-          self.map = self.createMap();
-          setTimeout(function() {
-            self.grabStyles();  
-          }, 500);
-        });
-      },
+        /**
+         * Zoom.
+         *
+         * @attribute zoom
+         * @type Number
+         */
+        zoom: 6,
 
-      createMap: function() {
-        return new ymaps.Map(this.$.map, {
-          center: this.center,
-          zoom: this.zoom
-        });
-      },
+        ready: function () {
+          stylesWatcher.register(this);
+          var self = this;
+          ymaps.ready(function () {
+            self.map = self.createMap();
+          });
+        },
 
-      grabStyles: function() {
-        var styles = document.head.querySelectorAll('style'),
-            ymapsStyle = Array.prototype.slice.apply(styles).filter(function(tag){
-              return tag.textContent.match(/^.ymaps-/);
-            }).map(function(tag) {
-              return tag.textContent;
-            }).join('\n');
-        this.$.style.textContent +=ymapsStyle;
-      }
-    });
+        createMap: function () {
+          return new ymaps.Map(this.$.map, {
+            center: this.center,
+            zoom: this.zoom
+          });
+        }
+      });
+    })();
   </script>
 </polymer-element>
