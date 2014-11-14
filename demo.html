@@ -5,25 +5,78 @@
   <title>Polymer yandex-map example</title>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <script src="http://www.polymer-project.org/components/webcomponentsjs/webcomponents.js"></script>
+  <link href="http://www.polymer-project.org/components/font-roboto/roboto.html" rel="import">
+  <link href="http://www.polymer-project.org/components/paper-button/paper-button.html" rel="import">
+
   <link rel="import" href="polymer-ymaps.html">
   <style>
-    html, body {
+    html, body, map-app {
+      font-family: RobotoDraft, sans-serif;
+      display: block;
       height: 100%;
       margin: 0;
     }
-    h1 {
-      text-align: center;
-    }
   </style>
 </head>
-<body unresolved layout vertical>
-  <div layout horizontal center>
-    <a href="./">Back to doc</a>
-    <h1 flex>Yandex-map demo</h1>
-  </div>
-  <yandex-map flex>
-    <yandex-map-marker latitude="40" longitude="18"></yandex-map-marker>
-    <yandex-map-marker latitude="43" longitude="26"></yandex-map-marker>
-  </yandex-map>
-</body>
+<body unresolved>
+  <map-app></map-app>
+  <polymer-element name="map-app">
+    <template>
+      <style>
+        :host > div {
+          height: 100%;
+        }
+        h1 {
+          text-align: center;
+        }
+        .column {
+          padding: 0 15px;
+        }
+        paper-button {
+          background: #a7b2ef;
+        }
+        paper-button::shadow #ripple {
+          color: #8b96cc;
+        }
+      </style>
+      <div layout vertical>
+        <div layout horizontal center>
+          <a href="./" class="column">Back to doc</a>
+          <h1 flex>Yandex-map demo</h1>
+        </div>
+        <div layout horizontal flex>
+          <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}">
+            <yandex-map-marker latitude="40" longitude="18"></yandex-map-marker>
+            <yandex-map-marker latitude="43" longitude="26"></yandex-map-marker>
+          </yandex-map>
+          <div flex class="column">
+            <h3>Map properties</h3>
+            <p><b>Center:</b> [{{map.latitude | formatNumber}}, {{map.longitude | formatNumber}}]</p>
+            <p><b>Zoom:</b> {{map.zoom}}</p>
+            <paper-button on-click="{{showMoscow}}">Show Moscow</paper-button>
+          </div>
+        </div>
+      </div>
+    </template>
+    <script>
+      Polymer({
+        map: {
+          latitude: 42,
+          longitude: 24,
+          zoom: 8
+        },
+
+        formatNumber: function(value) {
+          return Number(value).toFixed(2);
+        },
+
+        showMoscow: function() {
+          this.map.latitude = 55.70;
+          this.map.longitude = 37.66;
+          this.map.zoom = 10;
+        }
+      })
+    </script>
+  </polymer-element>
+  </body>
 </html>

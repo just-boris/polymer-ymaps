@@ -12,7 +12,7 @@ Element providing yandex-map for your site.
 @status alpha
 @homepage http://just-boris.github.io/polymer-ymaps
 -->
-<polymer-element name="yandex-map" attributes="latitude longitude zoom">
+<polymer-element name="yandex-map" attributes="latitude longitude zoom autofit">
   <template>
     <style id="style">
       :host {
@@ -81,7 +81,7 @@ Element providing yandex-map for your site.
          * @attribute latitude
          * @type Number
          */
-        latitude: 42,
+        latitude: 0,
 
         /**
          * A longitude of the map center
@@ -89,7 +89,7 @@ Element providing yandex-map for your site.
          * @attribute longitude
          * @type Number
          */
-        longitude: 24,
+        longitude: 0,
 
         /**
          * Zoom of the map
@@ -97,7 +97,7 @@ Element providing yandex-map for your site.
          * @attribute zoom
          * @type Number
          */
-        zoom: 6,
+        zoom: 8,
 
         /**
          * Array containing map markers
@@ -106,6 +106,13 @@ Element providing yandex-map for your site.
          * @type Array
          */
         placemarks: [],
+
+
+        observe: {
+          latitude: 'setPosition',
+          longitude: 'setPosition',
+          zoom: 'setPosition'
+        },
 
         ready: function () {
           stylesWatcher.register(this);
@@ -118,10 +125,20 @@ Element providing yandex-map for your site.
         },
 
         createMap: function () {
-          return new ymaps.Map(this.$.map, {
+          var map = new ymaps.Map(this.$.map, {
             center: [this.latitude, this.longitude],
             zoom: this.zoom
           });
+          this.placemarks.forEach(function(placemark) {
+            map.geoObjects.add(placemark)
+          }, this);
+          map.events.add('boundschange', function(event) {
+            var center = event.get('newCenter');
+            this.latitude = center[0];
+            this.longitude = center[1];
+            this.zoom = event.get('newZoom');
+          }, this);
+          return map;
         },
 
         onChangeContent: function(mutations) {
@@ -136,6 +153,12 @@ Element providing yandex-map for your site.
 
         bindSelfToMarker: function(marker) {
           marker.mapCtrl = this;
+        },
+
+        setPosition: function() {
+          if(this.map) {
+            this.map.setCenter([this.latitude, this.longitude], this.zoom);
+          }
         },
 
         addMarker: function (marker) {
