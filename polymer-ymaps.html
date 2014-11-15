@@ -48,9 +48,8 @@ Element providing yandex-map for your site.
           var newStyles = mutations.reduce(function (total, mutation) {
             if (mutation.addedNodes.length > 0) {
               total += Array.from(mutation.addedNodes).filter(function (tag) {
-                return tag.tagName.toLowerCase() === 'style' && tag.textContent.match(/^.ymaps/)
+                return tag.tagName && tag.tagName.toLowerCase() === 'style' && tag.textContent.match(/^.ymaps/)
               }).map(function(tag) {
-                console.log(tag);
                 return tag.textContent;
               }).join('\n')+'\n';
             }
@@ -144,7 +143,7 @@ Element providing yandex-map for your site.
         onChangeContent: function(mutations) {
           mutations.forEach(function(mutation) {
             Array.from(mutation.addedNodes).forEach(function(node) {
-              if(node.tagName === 'yandex-map-marker') {
+              if(node.tagName && node.tagName.toLowerCase() === 'yandex-map-marker') {
                 this.bindSelfToMarker(node);
               }
             }, this);
@@ -211,9 +210,12 @@ It should be placed only inside <yandex-map> element
     Polymer({
       ready: function() {
         ymaps.ready(function() {
-          var placemark = new ymaps.Placemark([this.latitude, this.longitude]);
-          this.mapCtrl.addMarker(placemark);
+          this.placemark = new ymaps.Placemark([this.latitude, this.longitude]);
+          this.mapCtrl.addMarker(this.placemark);
         }, this);
+      },
+      detached: function() {
+        this.mapCtrl.removeMarker(this.placemark);
       }
     });
   </script>

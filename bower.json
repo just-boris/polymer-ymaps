@@ -4,6 +4,7 @@
   "keywords": "ymaps, yansdex, polymer, web-components",
   "main": "polymer-ymaps.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#~0.5.0"
+    "polymer": "Polymer/polymer#~0.5.0",
+    "polymer-filters": "~0.1.0"
   }
 }
