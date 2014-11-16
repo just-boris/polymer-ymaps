@@ -20,10 +20,20 @@
       height: 100%;
       margin: 0;
     }
+    h1 {
+      text-align: center;
+    }
+    .backlink {
+      padding-left: 15px;
+    }
   </style>
 </head>
-<body unresolved>
-  <map-app></map-app>
+<body unresolved layout vertical>
+  <div layout horizontal center>
+    <a href="./" class="backlink">Back to doc</a>
+    <h1 flex>Yandex-map demo</h1>
+  </div>
+  <map-app flex></map-app>
 
   <polymer-element name="paper-button-submit" extends="button" noscript>
     <template>
@@ -116,10 +126,7 @@
         :host > div {
           height: 100%;
         }
-        h1 {
-          text-align: center;
-        }
-        .column {
+        core-scroll-header-panel {
           margin: 0 15px;
         }
         paper-button {
@@ -129,35 +136,29 @@
           color: #8b96cc;
         }
       </style>
-      <div layout vertical>
-        <div layout horizontal center>
-          <a href="./" class="column">Back to doc</a>
-          <h1 flex>Yandex-map demo</h1>
-        </div>
-        <div layout horizontal flex>
-          <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" autoFit>
-            <template repeat="{{marker in markers}}">
-              <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}"></yandex-map-marker>
-            </template>
-          </yandex-map>
-          <core-scroll-header-panel flex class="column">
-            <h3>Map properties</h3>
-            <p><b>Center:</b> [{{map.latitude | round(2)}}, {{map.longitude | round(2)}}]</p>
-            <p><b>Zoom:</b> {{map.zoom}}</p>
-            <paper-button on-click="{{showMoscow}}">Show Moscow</paper-button>
-            <hr/>
-            <h3>Map markers</h3>
-            <div class="markers-list">
-              <ol>
-                <template repeat="{{marker in markers}}">
-                  <marker-item marker="{{marker}}" on-remove="{{removeMarker}}"></marker-item>
-                </template>
-              </ol>
-            </div>
-            <marker-new on-add="{{addMarker}}"></marker-new>
-            <paper-button on-click="{{addRandomMarker}}">Add random point</paper-button>
-          </core-scroll-header-panel>
-        </div>
+      <div layout horizontal flex>
+        <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" autoFit>
+          <template repeat="{{marker in markers}}">
+            <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}"></yandex-map-marker>
+          </template>
+        </yandex-map>
+        <core-scroll-header-panel flex>
+          <h3>Map properties</h3>
+          <p><b>Center:</b> [{{map.latitude | round(2)}}, {{map.longitude | round(2)}}]</p>
+          <p><b>Zoom:</b> {{map.zoom}}</p>
+          <paper-button on-click="{{showMoscow}}">Show Moscow</paper-button>
+          <hr/>
+          <h3>Map markers</h3>
+          <div class="markers-list">
+            <ol>
+              <template repeat="{{marker in markers}}">
+                <marker-item marker="{{marker}}" on-remove="{{removeMarker}}"></marker-item>
+              </template>
+            </ol>
+          </div>
+          <marker-new on-add="{{addMarker}}"></marker-new>
+          <paper-button on-click="{{addRandomMarker}}">Add random point</paper-button>
+        </core-scroll-header-panel>
       </div>
     </template>
     <script>

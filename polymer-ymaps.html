@@ -207,8 +207,8 @@ Element providing yandex-map for your site.
 
 
 <!--
-Element representing map marker for <yandex-map>.
-It should be placed only inside <yandex-map> element
+Element representing map marker for &lt;yandex-map&gt;.
+It should be placed only inside that element
 
 ##### Example
 ```
@@ -232,6 +232,22 @@ It should be placed only inside <yandex-map> element
   </template>
   <script>
     Polymer({
+      /**
+       * A latitude of marker
+       *
+       * @attribute latitude
+       * @type Number
+       */
+      latitude: 0,
+
+      /**
+       * A longitude of marker
+       *
+       * @attribute longitude
+       * @type Number
+       */
+      longitude: 0,
+
       ready: function() {
         ymaps.ready(function() {
           this.placemark = new ymaps.Placemark([this.latitude, this.longitude]);
