@@ -9,6 +9,7 @@
   <link href="http://www.polymer-project.org/components/core-icons/core-icons.html" rel="import">
   <link href="http://www.polymer-project.org/components/paper-icon-button/paper-icon-button.html" rel="import">
   <link href="http://www.polymer-project.org/components/paper-button/paper-button.html" rel="import">
+  <link href="http://www.polymer-project.org/components/paper-input/paper-input.html" rel="import">
   <script src="bower_components/polymer-filters/filter-round.js"></script>
   <link rel="import" href="polymer-ymaps.html">
   <style>
@@ -22,6 +23,22 @@
 </head>
 <body unresolved>
   <map-app></map-app>
+
+  <polymer-element name="paper-button-submit" extends="button" noscript>
+    <template>
+      <style>
+        :host {
+          border: 0;
+          background: transparent;
+          padding: 0;
+          font-size: inherit;
+        }
+      </style>
+      <paper-button>
+        <content></content>
+      </paper-button>
+    </template>
+  </polymer-element>
 
   <polymer-element name="marker-item" attributes="marker">
     <template>
@@ -49,6 +66,46 @@
           this.fire('remove', this.marker);
         }
       })
+    </script>
+  </polymer-element>
+
+  <polymer-element name="marker-new">
+    <template>
+      <style>
+        paper-button[focused] {
+          box-shadow: 0 0 3px 3px #8b96cc;
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance:textfield;
+        }
+      </style>
+      <div>New marker</div>
+      <form layout horizontal center on-submit="{{addMarker}}">
+        <paper-input-decorator label="Latitude" flex>
+          <input type="number" tab-index="0" required step="any" value="{{marker.latitude}}" />
+        </paper-input-decorator>
+        <paper-input-decorator label="Longitude" flex>
+          <input type="number" tab-index="1" required step="any" value="{{marker.longitude}}" />
+        </paper-input-decorator>
+        <button type="submit" is="paper-button-submit">Add</button>
+      </form>
+    </template>
+    <script>
+      Polymer({
+        marker: {},
+        addMarker: function(e) {
+          e.preventDefault();
+          var marker = Polymer.mixin({}, this.marker);
+          this.marker.latitude = '';
+          this.marker.longitude = '';
+          this.fire('add', marker);
+        }
+      });
     </script>
   </polymer-element>
 
@@ -96,13 +153,14 @@
                 </template>
               </ol>
             </div>
+            <marker-new on-add="{{addMarker}}"></marker-new>
             <paper-button on-click="{{addRandomMarker}}">Add random point</paper-button>
           </div>
         </div>
       </div>
     </template>
     <script>
-      Polymer({
+      Polymer('map-app', {
         map: {
           latitude: 42,
           longitude: 24,
@@ -116,6 +174,10 @@
 
         removeMarker: function(e, marker) {
           this.markers.splice(this.markers.indexOf(marker), 1)
+        },
+
+        addMarker: function(e, marker) {
+          this.markers.push(marker);
         },
 
         addRandomMarker: function() {
