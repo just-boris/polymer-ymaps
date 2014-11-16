@@ -6,5 +6,9 @@
   "dependencies": {
     "polymer": "Polymer/polymer#~0.5.0",
     "polymer-filters": "~0.1.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#~1.6.1",
+    "sinon": "wilmoore/sinon-browser-only"
   }
 }

@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://www.polymer-project.org/components/webcomponentsjs/webcomponents.js"></script>
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+  <script src="../bower_components/sinon/sinon.js"></script>
+  <script src="ymaps-mock.js"></script>
+  <link rel="import" href="../polymer-ymaps.html">
+</head>
+<body>
+<script>
+  describe('basic yandex-map', function() {
+    beforeEach(function(done) {
+      this.map = document.createElement('yandex-map');
+      setTimeout(function () {
+        done();
+      }, 1);
+    });
+    it('should initialize map', function() {
+      expect(ymaps.Map.calledOnce).to.be.true;
+    });
+
+    it('should subscribe to boundschange event', function() {
+      expect(this.map.map.events.add.calledWith('boundschange')).to.be.true;
+      expect(this.map.map.events.add.calledOnce).to.be.true;
+    });
+  });
+</script>
+</body>
+</html>

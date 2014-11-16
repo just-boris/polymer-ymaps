@@ -7,6 +7,13 @@
           loader = {
         callbacks: [],
         load: function(path) {
+          if(typeof window.ymaps !== 'undefined') {
+            this.state = 'FINISHED';
+          } else {
+            this.loadScript(path)
+          }
+        },
+        loadScript: function(path) {
           var el = doc.createElement("script");
           el.onload = this._onLoad.bind(this);
           el.async = true;

@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://www.polymer-project.org/components/webcomponentsjs/webcomponents.js"></script>
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../polymer-ymaps.html">
+</head>
+<body>
+<yandex-map id="map" latitude="55" longitude="45">
+  <yandex-map-marker latitude="55.5" longitude="44.3"></yandex-map-marker>
+  <yandex-map-marker latitude="56.2" longitude="46.7"></yandex-map-marker>
+</yandex-map>
+<script>
+  describe('yandex-map integration test', function() {
+    it('is work', function() {
+      assert.ok(document.getElementById('map'));
+    });
+  });
+</script>
+</body>
+</html>
