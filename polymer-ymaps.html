@@ -1,5 +1,5 @@
-<link rel="import" href="ymaps-api.html">
 <link rel="import" href="http://www.polymer-project.org/components/polymer/polymer.html">
+<link rel="import" href="ymaps-api.html">
 
 <!--
 Element providing yandex-map for your site.
@@ -27,6 +27,7 @@ Element providing yandex-map for your site.
         bottom: 0;
       }
     </style>
+    <ymaps-api id="api" on-ready="{{createMap}}"></ymaps-api>
     <div id="map"></div>
     <content id="markers" select="yandex-map-marker"></content>
   </template>
@@ -124,13 +125,10 @@ Element providing yandex-map for your site.
           Array.from(this.$.markers.getDistributedNodes()).forEach(this.bindSelfToMarker, this);
           new MutationObserver(this.onChangeContent.bind(this))
               .observe(this, {childList: true});
-          ymaps.ready(function () {
-            this.map = this.createMap();
-          }, this);
         },
 
         createMap: function () {
-          var map = new ymaps.Map(this.$.map, {
+          var map = this.map = new ymaps.Map(this.$.map, {
             center: [this.latitude, this.longitude],
             zoom: this.zoom
           });
@@ -146,7 +144,6 @@ Element providing yandex-map for your site.
             this.longitude = center[1];
             this.zoom = event.get('newZoom');
           }, this);
-          return map;
         },
 
         onChangeContent: function(mutations) {
@@ -229,6 +226,7 @@ It should be placed only inside that element
         display: none;
       }
     </style>
+    <ymaps-api id="api" on-ready="{{createMarker}}"></ymaps-api>
   </template>
   <script>
     Polymer({
@@ -263,12 +261,10 @@ It should be placed only inside that element
         }
       },
 
-      ready: function() {
-        ymaps.ready(function() {
-          this.placemark = new ymaps.Placemark([this.latitude, this.longitude]);
-          this.mapCtrl.addMarker(this.placemark);
-          this.iconContentChanged(this.iconContent);
-        }, this);
+      createMarker: function() {
+        this.placemark = new ymaps.Placemark([this.latitude, this.longitude]);
+        this.mapCtrl.addMarker(this.placemark);
+        this.iconContentChanged(this.iconContent);
       },
       detached: function() {
         this.mapCtrl.removeMarker(this.placemark);
