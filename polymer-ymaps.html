@@ -12,7 +12,7 @@ Element providing yandex-map for your site.
 @status alpha
 @homepage http://just-boris.github.io/polymer-ymaps
 -->
-<polymer-element name="yandex-map" attributes="latitude longitude zoom autofit">
+<polymer-element name="yandex-map" attributes="latitude longitude zoom autoFit">
   <template>
     <style id="style">
       :host {
@@ -106,6 +106,12 @@ Element providing yandex-map for your site.
          */
         placemarks: [],
 
+        /**
+         * Set this to true if you want that map would be adjusted to show whole markers on it
+         * @attribute autoFit
+         * @type Boolean
+         */
+        autoFit: false,
 
         observe: {
           latitude: 'setPosition',
@@ -131,6 +137,9 @@ Element providing yandex-map for your site.
           this.placemarks.forEach(function(placemark) {
             map.geoObjects.add(placemark)
           }, this);
+          if(this.autoFit) {
+            this.fitMarkers();
+          }
           map.events.add('boundschange', function(event) {
             var center = event.get('newCenter');
             this.latitude = center[0];
@@ -160,10 +169,22 @@ Element providing yandex-map for your site.
           }
         },
 
+        fitMarkers: function() {
+          this.job('fitMarkers', function() {
+            if(this.map.geoObjects.getLength() > 0) {
+              var bounds = this.map.geoObjects.getBounds();
+              this.map.setBounds(bounds, {checkZoomRange: true});
+            }
+          }, 100);
+        },
+
         addMarker: function (marker) {
           this.placemarks.push(marker);
           if(this.map) {
             this.map.geoObjects.add(marker);
+            if(this.autoFit) {
+              this.fitMarkers();
+            }
           }
         },
 
@@ -173,6 +194,9 @@ Element providing yandex-map for your site.
             this.placemarks.splice(index, 1);
             if(this.map) {
               this.map.geoObjects.remove(marker);
+              if(this.autoFit) {
+                this.fitMarkers();
+              }
             }
           }
         }

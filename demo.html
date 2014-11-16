@@ -7,6 +7,7 @@
   <script src="http://www.polymer-project.org/components/webcomponentsjs/webcomponents.js"></script>
   <link href="http://www.polymer-project.org/components/font-roboto/roboto.html" rel="import">
   <link href="http://www.polymer-project.org/components/core-icons/core-icons.html" rel="import">
+  <link href="http://www.polymer-project.org/components/core-scroll-header-panel/core-scroll-header-panel.html" rel="import">
   <link href="http://www.polymer-project.org/components/paper-icon-button/paper-icon-button.html" rel="import">
   <link href="http://www.polymer-project.org/components/paper-button/paper-button.html" rel="import">
   <link href="http://www.polymer-project.org/components/paper-input/paper-input.html" rel="import">
@@ -119,7 +120,7 @@
           text-align: center;
         }
         .column {
-          padding: 0 15px;
+          margin: 0 15px;
         }
         paper-button {
           background: #a7b2ef;
@@ -134,12 +135,12 @@
           <h1 flex>Yandex-map demo</h1>
         </div>
         <div layout horizontal flex>
-          <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}">
+          <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" autoFit>
             <template repeat="{{marker in markers}}">
               <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}"></yandex-map-marker>
             </template>
           </yandex-map>
-          <div flex class="column">
+          <core-scroll-header-panel flex class="column">
             <h3>Map properties</h3>
             <p><b>Center:</b> [{{map.latitude | round(2)}}, {{map.longitude | round(2)}}]</p>
             <p><b>Zoom:</b> {{map.zoom}}</p>
@@ -155,7 +156,7 @@
             </div>
             <marker-new on-add="{{addMarker}}"></marker-new>
             <paper-button on-click="{{addRandomMarker}}">Add random point</paper-button>
-          </div>
+          </core-scroll-header-panel>
         </div>
       </div>
     </template>
@@ -167,10 +168,11 @@
           zoom: 8
         },
 
-        markers: [
-          {latitude: 40, longitude:18},
-          {latitude: 43, longitude:26}
-        ],
+        markers: [],
+
+        ready: function() {
+          Array.apply(null, new Array(5)).forEach(this.addRandomMarker, this)
+        },
 
         removeMarker: function(e, marker) {
           this.markers.splice(this.markers.indexOf(marker), 1)
@@ -181,9 +183,12 @@
         },
 
         addRandomMarker: function() {
+          function random(from, to) {
+            return from + Math.random() * (to - from);
+          }
           this.markers.push({
-            latitude: this.map.latitude + Math.random()*5,
-            longitude: this.map.longitude + Math.random()*5
+            latitude: this.map.latitude + random(-5, 5),
+            longitude: this.map.longitude + random(-5, 5)
           });
         },
 
