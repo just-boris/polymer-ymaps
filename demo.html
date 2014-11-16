@@ -138,8 +138,8 @@
       </style>
       <div layout horizontal flex>
         <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" autoFit>
-          <template repeat="{{marker in markers}}">
-            <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}"></yandex-map-marker>
+          <template repeat="{{marker, markerIndex in markers}}">
+            <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}" iconContent="{{markerIndex+1}}"></yandex-map-marker>
           </template>
         </yandex-map>
         <core-scroll-header-panel flex>

@@ -222,7 +222,7 @@ It should be placed only inside that element
 @status alpha
 @homepage http://just-boris.github.io/polymer-ymaps
 -->
-<polymer-element name="yandex-map-marker" attributes="latitude longitude">
+<polymer-element name="yandex-map-marker" attributes="latitude longitude iconContent">
   <template>
     <style>
       :host {
@@ -248,10 +248,26 @@ It should be placed only inside that element
        */
       longitude: 0,
 
+      /**
+       * Content which should be shown inside marker
+       *
+       * @attribute iconContent
+       * @type String
+       */
+      iconContent: '',
+
+
+      iconContentChanged: function(content) {
+        if(this.placemark) {
+          this.placemark.properties.set('iconContent', content);
+        }
+      },
+
       ready: function() {
         ymaps.ready(function() {
           this.placemark = new ymaps.Placemark([this.latitude, this.longitude]);
           this.mapCtrl.addMarker(this.placemark);
+          this.iconContentChanged(this.iconContent);
         }, this);
       },
       detached: function() {
