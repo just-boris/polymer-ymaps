@@ -1,4 +1,9 @@
 (function(exports) {
+    function YaEvent(data) {
+        this.get = function(key) {
+            return data[key];
+        };
+    }
     function resetSpies() {
         var map = {
             geoObjects: {
@@ -7,12 +12,15 @@
             },
             events: {
                 add: sinon.spy()
-            }
+            },
+            setCenter: sinon.spy()
         };
         exports.Map = sinon.stub().returns(map);
         exports.Placemark = sinon.spy();
     }
     beforeEach(resetSpies);
+
+    exports.YaEvent = YaEvent;
     exports.ready = function(callback, scope) {
         setTimeout(function() {
             callback.call(scope);
