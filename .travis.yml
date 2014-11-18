@@ -1,10 +1,12 @@
 branches:
   only:
-    - gh-pages
+  - gh-pages
 language: node_js
 node_js:
-  - "0.10"
-
-before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+- '0.10'
+script:
+- 'npm run remote-test'
+env:
+  global:
+  - secure: b0zuPh650yK1J7DZXhcTZ9IEGNydyHxWCMwwOEgNgQS6HqLHIA3sIGdGt0GzvhoD8fnvmUmBBlkI0vF7v7TRpy2znWg3qq3paq5PGk7DV6imyGg8stvYS0wDwOk5jYJmqRt0c6n7TcVV6oFp1eih0iMRYtTVU2HMZfDgK6n0lDQ=
+  - secure: PlO1Boybwl57OVi3P/b7OKyOHktbSW+S+ClMGq5Typp9NLdy1AAnlMOXnFBsgc0yLieFcKTOzHQh65URNLbjsluqOJvziSVQdDep0B/X1Y4oJgRLo0QPOriwvK18KvKeXRYaC6Kb8duShGh0V8vHyWAClHuDd5RUDg8NIWLUQUk=

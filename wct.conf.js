@@ -1,4 +1,4 @@
 module.exports = {
     verbose: true,
-    browsers:    ['firefox']
+    browsers:    process.argv.indexOf('--remote') === -1 ? ['firefox'] : ['linux/firefox', 'linux/chrome@38']
 };

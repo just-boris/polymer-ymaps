@@ -9,7 +9,8 @@
   },
   "scripts": {
     "prepublish": "bower install",
-    "test": "wct"
+    "test": "wct",
+    "remote-test": "wct --remote"
   },
   "repository": {
     "type": "git",
