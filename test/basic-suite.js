@@ -23,12 +23,10 @@ describe('basic yandex-map', function() {
     expect(this.map).to.have.property('zoom', 9);
   });
 
-  it("should update map center after attribute changes", function (done) {
+  it("should update map center after attribute changes", function () {
     this.map.latitude = 80;
     this.map.longitude = 33;
-    setTimeout(function () {
-      expect(this.map.map.setCenter.calledOnce).to.equal(true);
-      done();
-    }.bind(this));
+    this.map.deliverChanges();
+    expect(this.map.map.setCenter.calledOnce).to.equal(true);
   });
 });
