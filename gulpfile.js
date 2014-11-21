@@ -28,7 +28,7 @@ gulp.task('copy', ['clean'], function() {
 gulp.task('test', function(done) {
     wct(process.argv.indexOf('--remote') !== -1, function(error) {
         if (error) {
-            done(new gutil.PluginError(error, {showStack: true}));
+            done(new gutil.PluginError('web-component-tester', error, {showStack: true}));
         }
         done(error);
     });
