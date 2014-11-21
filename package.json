@@ -5,12 +5,17 @@
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.3.12",
+    "del": "^0.1.3",
+    "gulp": "^3.8.10",
+    "gulp-util": "^3.0.1",
+    "gulp-vulcanize": "just-boris/gulp-vulcanize#output-fix",
     "web-component-tester": "2.0.0"
   },
   "scripts": {
     "prepublish": "bower install",
-    "test": "node run-tests.js",
-    "remote-test": "node run-tests.js --remote"
+    "test": "gulp",
+    "remote-test": "gulp test --remote",
+    "vulcanize": "vulcanize -o dist/demo.html --inline --strip demo.html"
   },
   "repository": {
     "type": "git",
