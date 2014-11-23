@@ -15,6 +15,7 @@ gulp.task('vulcanize', ['clean'], function() {
     return gulp.src(['demo.html', 'index.html'])
         .pipe(vulcanize({
             dest: DIST_DIR,
+            inline: true,
             strip: true
         }))
         .pipe(gulp.dest(DIST_DIR));
