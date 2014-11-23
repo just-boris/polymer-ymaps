@@ -7,32 +7,50 @@
   <script src="../webcomponentsjs/webcomponents.js"></script>
   <link href="../font-roboto/roboto.html" rel="import">
   <link href="../core-icons/core-icons.html" rel="import">
+  <link href="../core-toolbar/core-toolbar.html" rel="import">
   <link href="../core-scroll-header-panel/core-scroll-header-panel.html" rel="import">
   <link href="../paper-icon-button/paper-icon-button.html" rel="import">
   <link href="../paper-button/paper-button.html" rel="import">
   <link href="../paper-input/paper-input.html" rel="import">
   <link href="../polymer-filters/polymer-filters.html" rel="import">
   <link rel="import" href="polymer-ymaps.html">
-  <style>
+  <style shim-shadowdom>
     html, body, map-app {
       font-family: RobotoDraft, sans-serif;
-      display: block;
-      height: 100%;
-      margin: 0;
     }
-    h1 {
+    body /deep/ paper-button.colored {
+      background: #6DCAC6;
+    }
+    body /deep/ paper-input-decorator::shadow #focusedUnderline {
+      background: #6DCAC6;
+    }
+    body /deep/ paper-input-decorator::shadow .cursor {
+      background: #6DCAC6;
+    }
+    core-toolbar {
+      background: #6DCAC6;
+      box-shadow: 0 2px 3px 0px #B3BBBD;
+      z-index: 1;
+    }
+    core-toolbar .backlink {
+      background: #28A792;
+      font-size: 16px;
+      text-decoration: none;
+      color: #fff;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    core-toolbar h1 {
+      font-size: 1.3em;
       text-align: center;
-    }
-    .backlink {
-      padding-left: 15px;
     }
   </style>
 </head>
-<body unresolved layout vertical>
-  <div layout horizontal center>
-    <a href="./" class="backlink">Back to doc</a>
+<body unresolved fullbleed layout vertical>
+  <core-toolbar>
+    <a href="./" class="backlink">Back to docs</a>
     <h1 flex>Yandex-map demo</h1>
-  </div>
+  </core-toolbar>
   <map-app flex></map-app>
 
   <polymer-element name="paper-button-submit" extends="button" noscript>
@@ -55,11 +73,12 @@
     <template>
       <style>
         :host {
+          display: block;
           line-height: 40px;
           border-bottom: 1px solid transparent;
         }
-        :host:hover {
-          border-bottom-color: #8b96cc;
+        :host(:hover) {
+          border-bottom-color: #00B7AE;
         }
         paper-icon-button {
           float:right;
@@ -83,9 +102,6 @@
   <polymer-element name="marker-new">
     <template>
       <style>
-        paper-button[focused] {
-          box-shadow: 0 0 3px 3px #8b96cc;
-        }
         input[type=number]::-webkit-outer-spin-button,
         input[type=number]::-webkit-inner-spin-button {
           -webkit-appearance: none;
@@ -123,30 +139,40 @@
   <polymer-element name="map-app">
     <template>
       <style>
+        :host {
+          position: relative;
+        }
         :host > div {
           height: 100%;
+          width: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
         }
-        core-scroll-header-panel {
-          margin: 0 15px;
+        core-scroll-header-panel::shadow #mainContainer {
+          padding: 0 15px 15px;
         }
-        paper-button {
-          background: #a7b2ef;
-        }
-        paper-button::shadow #ripple {
-          color: #8b96cc;
+        hr {
+          border: 0;
+          border-bottom: 1px solid currentColor;
+          margin: 1em 0;
         }
       </style>
-      <div layout horizontal flex>
+      <div layout horizontal>
         <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" autoFit>
           <template repeat="{{marker, markerIndex in markers}}">
             <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}" iconContent="{{markerIndex+1}}"></yandex-map-marker>
           </template>
         </yandex-map>
         <core-scroll-header-panel flex>
-          <h3>Map properties</h3>
-          <p><b>Center:</b> [{{map.latitude | round(2)}}, {{map.longitude | round(2)}}]</p>
-          <p><b>Zoom:</b> {{map.zoom}}</p>
-          <paper-button on-click="{{showMoscow}}">Show Moscow</paper-button>
+          <div layout horizontal center>
+            <div flex>
+              <h3>Map properties</h3>
+              <p><b>Center:</b> [{{map.latitude | round(2)}}, {{map.longitude | round(2)}}]</p>
+              <p><b>Zoom:</b> {{map.zoom}}</p>
+            </div>
+              <paper-button on-click="{{showMoscow}}" class="colored">Show Moscow</paper-button>
+          </div>
           <hr/>
           <h3>Map markers</h3>
           <div class="markers-list">
@@ -157,7 +183,7 @@
             </ol>
           </div>
           <marker-new on-add="{{addMarker}}"></marker-new>
-          <paper-button on-click="{{addRandomMarker}}">Add random point</paper-button>
+          <paper-button on-click="{{addRandomMarker}}" class="colored">Add random point</paper-button>
         </core-scroll-header-panel>
       </div>
     </template>
