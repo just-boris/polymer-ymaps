@@ -257,16 +257,16 @@ It should be placed only inside that element
       iconContent: '',
 
 
-      iconContentChanged: function(content) {
+      iconContentChanged: function(oldVal, newVal) {
         if(this.placemark) {
-          this.placemark.properties.set('iconContent', content);
+          this.placemark.properties.set('iconContent', newVal);
         }
       },
 
       createMarker: function() {
         this.placemark = new ymaps.Placemark([this.latitude, this.longitude]);
         this.mapCtrl.addMarker(this.placemark);
-        this.iconContentChanged(this.iconContent);
+        this.placemark.properties.set('iconContent', this.iconContent);
       },
       detached: function() {
         this.mapCtrl.removeMarker(this.placemark);
