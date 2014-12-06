@@ -125,8 +125,7 @@ Element providing yandex-map for your site.
         ready: function () {
           stylesWatcher.register(this);
           Array.from(this.$.markers.getDistributedNodes()).forEach(this.bindSelfToMarker, this);
-          new MutationObserver(this.onChangeContent.bind(this))
-              .observe(this, {childList: true});
+          this.onMutation(this, this.onChangeContent);
         },
 
         createMap: function () {
@@ -148,7 +147,7 @@ Element providing yandex-map for your site.
           }, this);
         },
 
-        onChangeContent: function(mutations) {
+        onChangeContent: function(observer, mutations) {
           mutations.forEach(function(mutation) {
             Array.from(mutation.addedNodes).forEach(function(node) {
               if(node.tagName && node.tagName.toLowerCase() === 'yandex-map-marker') {
@@ -156,6 +155,7 @@ Element providing yandex-map for your site.
               }
             }, this);
           }, this);
+          this.onMutation(this, this.onChangeContent);
         },
 
         bindSelfToMarker: function(marker) {
