@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "web-component-tester": "^5.0.1",
-    "sinon-browser-only": "wilmoore/sinon-browser-only#^1.17.1"
+    "sinon-browser-only": "wilmoore/sinon-browser-only#^1.17.1",
+    "iron-flex-layout": "^1.3.2"
   }
 }

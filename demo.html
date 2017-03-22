@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <script src="../webcomponentsjs/webcomponents-lite.min.js"></script>
   <link href="../polymer/polymer.html" rel="import">
+  <link href="../iron-flex-layout/iron-flex-layout-classes.html" rel="import">
   <link href="../font-roboto/roboto.html" rel="import">
   <link href="../iron-icons/iron-icons.html" rel="import">
   <link href="../paper-toolbar/paper-toolbar.html" rel="import">
@@ -18,10 +19,10 @@
     html, body, map-app {
       font-family: Roboto, sans-serif;
     }
-    body /deep/ paper-button.colored {
+    paper-button.colored {
       background: #6DCAC6;
     }
-    paper-toolbar {
+    paper-toolbar.colored {
       background: #6DCAC6;
       box-shadow: 0 2px 3px 0px #B3BBBD;
       z-index: 1;
@@ -33,29 +34,14 @@
       color: #fff;
       padding: 5px;
       border-radius: 4px;
+      margin-right: 1em;
     }
     paper-toolbar h1 {
       font-size: 1.3em;
       text-align: center;
     }
 
-    html /deep/ [flex] {
-      flex: 1;
-      flex-basis: 0;
-    }
-    html /deep/ [layout][horizontal] {
-      flex-direction: row;
-    }
-    html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
-      display: flex;
-    }
-    html /deep/ [layout][vertical] {
-      flex-direction: column;
-    }
-    html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
-      display: flex;
-    }
-    body[fullbleed] {
+    body {
       margin: 0;
       height: 100vh;
     }
@@ -68,12 +54,13 @@
     }
   </script>
 </head>
-<body unresolved fullbleed layout vertical>
-  <paper-toolbar>
+<body unresolved class="layout vertical">
+  <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+  <paper-toolbar class="colored">
     <a href="./" class="backlink">Back to docs</a>
     <h1 flex>Yandex-map demo</h1>
   </paper-toolbar>
-  <map-app flex></map-app>
+  <map-app class="flex"></map-app>
 
   <dom-module id="marker-item">
     <template>
@@ -112,6 +99,7 @@
   </dom-module>
 
   <dom-module id="marker-new">
+    <style include="iron-flex iron-flex-alignment"></style>
     <template>
       <style>
         :host {
@@ -127,7 +115,7 @@
         }
       </style>
       <div>New marker</div>
-      <div layout horizontal center>
+      <div class="layout horizontal center">
         <paper-input label="Latitude" type="number" tab-index="0" required step="any" value="{{marker.latitude}}"></paper-input>
         <paper-input label="Longitude" type="number" tab-index="1" required step="any" value="{{marker.longitude}}"></paper-input>
         <paper-button type="submit" on-click="addMarker">Add</paper-button>
@@ -159,6 +147,7 @@
 
   <dom-module id="map-app">
     <template>
+      <style include="iron-flex iron-flex-alignment"></style>
       <style>
         :host {
           position: relative;
@@ -179,17 +168,17 @@
           margin: 1em 0;
         }
       </style>
-      <div layout horizontal>
+      <div class="layout horizontal">
 
-        <yandex-map id="yamap" latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" auto-fit flex>
+        <yandex-map id="yamap" latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" auto-fit class="flex">
           <template is="dom-repeat" items="{{markers}}" as="marker">
             <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}" icon-content="{{indexPlusOne(index)}}"></yandex-map-marker>
           </template>
         </yandex-map>
 
-        <paper-scroll-header-panel flex>
-          <div layout horizontal center>
-            <div flex>
+        <paper-scroll-header-panel class="flex">
+          <div class="layout horizontal center">
+            <div class="flex">
               <h3>Map properties</h3>
               <p><b>Center:</b> [[[fixed2(map.latitude)]], [[fixed2(map.longitude)]]] </p>
               <p><b>Zoom:</b> [[map.zoom]]</p>
