@@ -12,11 +12,12 @@ Element providing yandex-map for your site.
 @status alpha
 @homepage http://just-boris.github.io/polymer-ymaps
 -->
-<polymer-element name="yandex-map" attributes="latitude longitude zoom autoFit">
+<dom-module id="yandex-map">
   <template>
-    <style id="style">
+    <style>
       :host {
         position: relative;
+        display: block;
       }
       #map {
         position: absolute;
@@ -27,149 +28,124 @@ Element providing yandex-map for your site.
         bottom: 0;
       }
     </style>
-    <ymaps-api id="api" on-ready="{{createMap}}"></ymaps-api>
+    <ymaps-api id="api" on-ready="createMap"></ymaps-api>
     <div id="map"></div>
     <content id="markers" select="yandex-map-marker"></content>
   </template>
   <script>
     (function () {
-      if (!Array.from) {
-        Array.from = function (object) {
-          return [].slice.call(object);
-        };
-      }
-      var stylesWatcher = {
-        components: [],
-        styles: "",
-        initialize: function () {
-          var observer = new MutationObserver(this.onMutate.bind(this));
-          observer.observe(document.head, {childList: true});
-        },
-        onMutate: function (mutations) {
-          var newStyles = mutations.reduce(function (total, mutation) {
-            if (mutation.addedNodes.length > 0) {
-              total += Array.from(mutation.addedNodes).filter(function (tag) {
-                return tag.tagName && tag.tagName.toLowerCase() === 'style' && tag.textContent.match(/^.ymaps/)
-              }).map(function(tag) {
-                return tag.textContent;
-              }).join('\n')+'\n';
+      Polymer({
+        is: 'yandex-map',
+
+        properties: {
+          /**
+           * A latitude of the map center
+           *
+           * @attribute latitude
+           * @type Number
+           */
+          latitude: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+          /**
+           * A longitude of the map center
+           *
+           * @attribute longitude
+           * @type Number
+           */
+          longitude: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+          /**
+           * Zoom of the map
+           *
+           * @attribute zoom
+           * @type Number
+           */
+          zoom: {
+            type: Number,
+            notify: true,
+            value: 8
+          },
+
+          /**
+           * Array containing map markers
+           * _Do not use it to add markers. Use element `yandex-map-marker` instead_
+           * @attribute placemarks
+           * @type Array
+           */
+          placemarks: {
+            type: Array,
+            value: () => {
+              return [];
             }
-            return total;
-          }, "");
-          if(newStyles.length > 0) {
-            this.components.forEach(function(component) {
-              this.applyStyle(component, newStyles);
-            }, this);
-            this.styles += newStyles;
+          },
+
+          /**
+           * Set this to true if you want that map would be adjusted to show whole markers on it
+           * @attribute autoFit
+           * @type Boolean
+           */
+          autoFit: {
+            type: Boolean,
+            reflectToAttribute: true,
+            value: false
+          }
+
+        },
+
+        observers: [
+          'setPosition(latitude, longitude, zoom)'
+        ],
+
+        ready() {
+          if(this.$.markers) {
+            Array.from(this.$.markers.getDistributedNodes()).forEach(this.bindSelfToMarker, this);
           }
         },
-        applyStyle: function(component, style) {
-          var tag = document.createElement('style');
-          tag.textContent = style;
-          component.shadowRoot.appendChild(tag);
-        },
-        register: function (component) {
-          this.applyStyle(component, this.styles);
-          this.components.push(component);
-        }
-      };
-      stylesWatcher.initialize();
 
-      Polymer('yandex-map', {
-
-        /**
-         * A latitude of the map center
-         *
-         * @attribute latitude
-         * @type Number
-         */
-        latitude: 0,
-
-        /**
-         * A longitude of the map center
-         *
-         * @attribute longitude
-         * @type Number
-         */
-        longitude: 0,
-
-        /**
-         * Zoom of the map
-         *
-         * @attribute zoom
-         * @type Number
-         */
-        zoom: 8,
-
-        /**
-         * Array containing map markers
-         * _Do not use it to add markers. Use element `yandex-map-marker` instead_
-         * @attribute placemarks
-         * @type Array
-         */
-        placemarks: [],
-
-        /**
-         * Set this to true if you want that map would be adjusted to show whole markers on it
-         * @attribute autoFit
-         * @type Boolean
-         */
-        autoFit: false,
-
-        observe: {
-          latitude: 'setPosition',
-          longitude: 'setPosition',
-          zoom: 'setPosition'
-        },
-
-        ready: function () {
-          stylesWatcher.register(this);
-          Array.from(this.$.markers.getDistributedNodes()).forEach(this.bindSelfToMarker, this);
-          this.onMutation(this, this.onChangeContent);
-        },
-
-        createMap: function () {
+        createMap() {
           var map = this.map = new ymaps.Map(this.$.map, {
             center: [this.latitude, this.longitude],
             zoom: this.zoom
           });
-          this.placemarks.forEach(function(placemark) {
+          this.placemarks.forEach((placemark) => {
             map.geoObjects.add(placemark)
-          }, this);
+          });
           if(this.autoFit) {
             this.fitMarkers();
           }
-          map.events.add('boundschange', function(event) {
-            var center = event.get('newCenter');
-            this.latitude = center[0];
-            this.longitude = center[1];
-            this.zoom = event.get('newZoom');
-          }, this);
+
+          map.events.add('boundschange', (event) => {
+            event.stopImmediatePropagation();
+
+            this.debounce('boundschange', () => {
+              var center = event.get('newCenter');
+              this.latitude = center[0];
+              this.longitude = center[1];
+              this.zoom = event.get('newZoom');
+            }, 1);
+          });
         },
 
-        onChangeContent: function(observer, mutations) {
-          mutations.forEach(function(mutation) {
-            Array.from(mutation.addedNodes).forEach(function(node) {
-              if(node.tagName && node.tagName.toLowerCase() === 'yandex-map-marker') {
-                this.bindSelfToMarker(node);
-              }
-            }, this);
-          }, this);
-          this.onMutation(this, this.onChangeContent);
-        },
-
-        bindSelfToMarker: function(marker) {
+        bindSelfToMarker(marker) {
           marker.mapCtrl = this;
         },
 
-        setPosition: function() {
+        setPosition(latitude, longitude, zoom) {
           if(this.map) {
-            this.map.setCenter([this.latitude, this.longitude], this.zoom);
+            this.map.setCenter([latitude, longitude], zoom);
           }
         },
 
-        fitMarkers: function() {
-          this.job('fitMarkers', function() {
+        fitMarkers() {
+          this.debounce('fitMarkers', () => {
             if(this.map.geoObjects.getLength() > 0) {
               var bounds = this.map.geoObjects.getBounds();
               this.map.setBounds(bounds, {checkZoomRange: true});
@@ -177,7 +153,7 @@ Element providing yandex-map for your site.
           }, 100);
         },
 
-        addMarker: function (marker) {
+        addMarker(marker) {
           this.placemarks.push(marker);
           if(this.map) {
             this.map.geoObjects.add(marker);
@@ -187,7 +163,7 @@ Element providing yandex-map for your site.
           }
         },
 
-        removeMarker: function(marker) {
+        removeMarker(marker) {
           var index = this.placemarks.indexOf(marker);
           if(index > -1) {
             this.placemarks.splice(index, 1);
@@ -199,10 +175,12 @@ Element providing yandex-map for your site.
             }
           }
         }
+
       });
+
     })();
   </script>
-</polymer-element>
+</dom-module>
 
 
 <!--
@@ -221,56 +199,83 @@ It should be placed only inside that element
 @status alpha
 @homepage http://just-boris.github.io/polymer-ymaps
 -->
-<polymer-element name="yandex-map-marker" attributes="latitude longitude iconContent">
+<dom-module id="yandex-map-marker">
   <template>
     <style>
       :host {
         display: none;
       }
     </style>
-    <ymaps-api id="api" on-ready="{{createMarker}}"></ymaps-api>
+    <ymaps-api id="api" on-ready="createMarker"></ymaps-api>
   </template>
   <script>
     Polymer({
-      /**
-       * A latitude of marker
-       *
-       * @attribute latitude
-       * @type Number
-       */
-      latitude: 0,
+      is: 'yandex-map-marker',
 
-      /**
-       * A longitude of marker
-       *
-       * @attribute longitude
-       * @type Number
-       */
-      longitude: 0,
+      properties: {
 
-      /**
-       * Content which should be shown inside marker
-       *
-       * @attribute iconContent
-       * @type String
-       */
-      iconContent: '',
+        /**
+         * A latitude of marker
+         *
+         * @attribute latitude
+         * @type Number
+         */
+        latitude: {
+          type: Number,
+          value: 0.0
+        },
 
+        /**
+         * A longitude of marker
+         *
+         * @attribute longitude
+         * @type Number
+         */
+        longitude: {
+          type: Number,
+          value: 0.0
+        },
 
-      iconContentChanged: function(oldVal, newVal) {
+        /**
+         * Content which should be shown inside marker
+         *
+         * @attribute iconContent
+         * @type String
+         */
+        iconContent: {
+          type: String,
+          value: ''
+        },
+
+        mapCtrl: {
+          type: Object,
+          value: () => {
+            return {};
+          }
+        }
+
+      },
+
+      iconContentChanged(oldVal, newVal) {
         if(this.placemark) {
           this.placemark.properties.set('iconContent', newVal);
         }
       },
 
-      createMarker: function() {
+      createMarker() {
         this.placemark = new ymaps.Placemark([this.latitude, this.longitude]);
-        this.mapCtrl.addMarker(this.placemark);
+        this.parentNode.addMarker(this.placemark);
         this.placemark.properties.set('iconContent', this.iconContent);
       },
-      detached: function() {
+
+      attached() {
+        this.mapCtrl = this.parentElement;
+      },
+
+      detached() {
         this.mapCtrl.removeMarker(this.placemark);
       }
+
     });
   </script>
-</polymer-element>
+</dom-module>

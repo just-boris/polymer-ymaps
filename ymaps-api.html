@@ -1,34 +1,34 @@
 <link rel="import" href="../polymer/polymer.html">
 
-<polymer-element name="ymaps-api">
+<dom-module id="ymaps-api">
   <script>
     (function() {
-      var doc = document.currentScript.ownerDocument,
-          loader = {
+      var doc = document.currentScript.ownerDocument;
+      var loader = {
         callbacks: [],
-        load: function(path) {
+        state: 'IDLE',
+        load(path) {
           if(typeof window.ymaps !== 'undefined') {
             this.state = 'FINISHED';
           } else {
-            this.loadScript(path)
+            this.loadScript(path);
           }
         },
-        loadScript: function(path) {
-          var el = doc.createElement("script");
+        loadScript(path) {
+          var el = doc.createElement('script');
           el.onload = this._onLoad.bind(this);
           el.async = true;
           el.src = path;
           doc.head.appendChild(el);
           this.state = 'LOADING';
         },
-        state: 'IDLE',
-        _onLoad: function() {
+        _onLoad() {
           this.state = 'FINISHED';
-          this.callbacks.forEach(function(callback) {
+          this.callbacks.forEach((callback) => {
             callback();
           });
         },
-        onLoad: function(callback) {
+        onLoad(callback) {
           if(this.state === 'FINISHED') {
             callback();
           } else {
@@ -36,22 +36,24 @@
           }
         }
       };
+
       Polymer({
-        created: function() {
+        created() {
           if(loader.state === 'IDLE') {
-            var API_URL = "http://api-maps.yandex.ru/2.1/?lang=en_US";
+            var API_URL = "http://api-maps.yandex.ru/2.1/?lang=en";
 //            var API_URL = "http://api-maps.yandex.ru/2.1/?lang=ru_RU&mode=debug";
             loader.load(API_URL);
           }
-          loader.onLoad(this.onReady.bind(this))
+          loader.onLoad(this.onReady.bind(this));
         },
 
-        onReady: function() {
-          ymaps.ready(function() {
+        onReady() {
+          ymaps.ready(() => {
             this.fire('ready');
           }, this);
         }
-      })
+      });
+
     })();
   </script>
-</polymer-element>
+</dom-module>

@@ -4,35 +4,29 @@
   <meta charset="UTF-8">
   <title>Polymer yandex-map example</title>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <script src="../webcomponentsjs/webcomponents.js"></script>
+  <script src="../webcomponentsjs/webcomponents-lite.min.js"></script>
+  <link href="../polymer/polymer.html" rel="import">
   <link href="../font-roboto/roboto.html" rel="import">
-  <link href="../core-icons/core-icons.html" rel="import">
-  <link href="../core-toolbar/core-toolbar.html" rel="import">
-  <link href="../core-scroll-header-panel/core-scroll-header-panel.html" rel="import">
+  <link href="../iron-icons/iron-icons.html" rel="import">
+  <link href="../paper-toolbar/paper-toolbar.html" rel="import">
+  <link href="../paper-scroll-header-panel/paper-scroll-header-panel.html" rel="import">
   <link href="../paper-icon-button/paper-icon-button.html" rel="import">
   <link href="../paper-button/paper-button.html" rel="import">
   <link href="../paper-input/paper-input.html" rel="import">
-  <link href="../polymer-filters/polymer-filters.html" rel="import">
   <link rel="import" href="polymer-ymaps.html">
   <style shim-shadowdom>
     html, body, map-app {
-      font-family: RobotoDraft, sans-serif;
+      font-family: Roboto, sans-serif;
     }
     body /deep/ paper-button.colored {
       background: #6DCAC6;
     }
-    body /deep/ paper-input-decorator::shadow #focusedUnderline {
-      background: #6DCAC6;
-    }
-    body /deep/ paper-input-decorator::shadow .cursor {
-      background: #6DCAC6;
-    }
-    core-toolbar {
+    paper-toolbar {
       background: #6DCAC6;
       box-shadow: 0 2px 3px 0px #B3BBBD;
       z-index: 1;
     }
-    core-toolbar .backlink {
+    paper-toolbar .backlink {
       background: #28A792;
       font-size: 16px;
       text-decoration: none;
@@ -40,36 +34,48 @@
       padding: 5px;
       border-radius: 4px;
     }
-    core-toolbar h1 {
+    paper-toolbar h1 {
       font-size: 1.3em;
       text-align: center;
     }
+
+    html /deep/ [flex] {
+      flex: 1;
+      flex-basis: 0;
+    }
+    html /deep/ [layout][horizontal] {
+      flex-direction: row;
+    }
+    html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+      display: flex;
+    }
+    html /deep/ [layout][vertical] {
+      flex-direction: column;
+    }
+    html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+      display: flex;
+    }
+    body[fullbleed] {
+      margin: 0;
+      height: 100vh;
+    }
   </style>
+  <script>
+    var UtilsBehavior = {
+      fixed2(num) {
+        return num.toFixed(2);
+      }
+    }
+  </script>
 </head>
 <body unresolved fullbleed layout vertical>
-  <core-toolbar>
+  <paper-toolbar>
     <a href="./" class="backlink">Back to docs</a>
     <h1 flex>Yandex-map demo</h1>
-  </core-toolbar>
+  </paper-toolbar>
   <map-app flex></map-app>
 
-  <polymer-element name="paper-button-submit" extends="button" noscript>
-    <template>
-      <style>
-        :host {
-          border: 0;
-          background: transparent;
-          padding: 0;
-          font-size: inherit;
-        }
-      </style>
-      <paper-button>
-        <content></content>
-      </paper-button>
-    </template>
-  </polymer-element>
-
-  <polymer-element name="marker-item" attributes="marker">
+  <dom-module id="marker-item">
     <template>
       <style>
         :host {
@@ -86,70 +92,85 @@
         }
       </style>
       <li>
-        <paper-icon-button icon="remove-circle-outline" on-click="{{triggerRemove}}"></paper-icon-button>
-        [{{marker.latitude | round(2)}}, {{marker.longitude | round(2)}}]
+        <paper-icon-button icon="remove-circle-outline" on-click="triggerRemove"></paper-icon-button>
+        [[fixed2(marker.latitude)]], [[fixed2(marker.longitude)]]
       </li>
     </template>
     <script>
       Polymer({
-        triggerRemove: function() {
+        is: 'marker-item',
+
+        behaviors: [
+          UtilsBehavior
+        ],
+
+        triggerRemove() {
           this.fire('remove', this.marker);
         }
       })
     </script>
-  </polymer-element>
+  </dom-module>
 
-  <polymer-element name="marker-new">
+  <dom-module id="marker-new">
     <template>
       <style>
-        input[type=number]::-webkit-outer-spin-button,
-        input[type=number]::-webkit-inner-spin-button {
+        :host {
+          display: block;
+        }
+        paper-input[type=number]::-webkit-outer-spin-button,
+        paper-input[type=number]::-webkit-inner-spin-button {
           -webkit-appearance: none;
           margin: 0;
         }
-        input[type=number] {
-          -moz-appearance:textfield;
+        paper-input[type=number] {
+          -moz-appearance: textfield;
         }
       </style>
       <div>New marker</div>
-      <form layout horizontal center on-submit="{{addMarker}}">
-        <paper-input-decorator label="Latitude" flex>
-          <input type="number" tab-index="0" required step="any" value="{{marker.latitude}}" />
-        </paper-input-decorator>
-        <paper-input-decorator label="Longitude" flex>
-          <input type="number" tab-index="1" required step="any" value="{{marker.longitude}}" />
-        </paper-input-decorator>
-        <button type="submit" is="paper-button-submit">Add</button>
-      </form>
+      <div layout horizontal center>
+        <paper-input label="Latitude" type="number" tab-index="0" required step="any" value="{{marker.latitude}}"></paper-input>
+        <paper-input label="Longitude" type="number" tab-index="1" required step="any" value="{{marker.longitude}}"></paper-input>
+        <paper-button type="submit" on-click="addMarker">Add</paper-button>
+      </div>
     </template>
     <script>
       Polymer({
-        marker: {},
-        addMarker: function(e) {
+        is: 'marker-new',
+
+        properties: {
+          marker: {
+            type: Object,
+            value: () => {
+              return {};
+            }
+          }
+        },
+
+        addMarker(e) {
           e.preventDefault();
-          var marker = Polymer.mixin({}, this.marker);
-          this.marker.latitude = '';
-          this.marker.longitude = '';
-          this.fire('add', marker);
+          this.fire('add', {
+            latitude: Number(this.marker.latitude),
+            longitude: Number(this.marker.longitude)
+          });
         }
       });
     </script>
-  </polymer-element>
+  </dom-module>
 
-  <polymer-element name="map-app">
+  <dom-module id="map-app">
     <template>
       <style>
         :host {
           position: relative;
         }
         :host > div {
+          position: absolute;
           height: 100%;
           width: 100%;
-          position: absolute;
           left: 0;
           top: 0;
         }
-        core-scroll-header-panel::shadow #mainContainer {
+        paper-scroll-header-panel::shadow #mainContainer {
           padding: 0 15px 15px;
         }
         hr {
@@ -159,73 +180,98 @@
         }
       </style>
       <div layout horizontal>
-        <yandex-map flex latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" autoFit>
-          <template repeat="{{marker, markerIndex in markers}}">
-            <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}" iconContent="{{markerIndex+1}}"></yandex-map-marker>
+
+        <yandex-map id="yamap" latitude="{{map.latitude}}" longitude="{{map.longitude}}" zoom="{{map.zoom}}" auto-fit flex>
+          <template is="dom-repeat" items="{{markers}}" as="marker">
+            <yandex-map-marker latitude="{{marker.latitude}}" longitude="{{marker.longitude}}" icon-content="{{indexPlusOne(index)}}"></yandex-map-marker>
           </template>
         </yandex-map>
-        <core-scroll-header-panel flex>
+
+        <paper-scroll-header-panel flex>
           <div layout horizontal center>
             <div flex>
               <h3>Map properties</h3>
-              <p><b>Center:</b> [{{map.latitude | round(2)}}, {{map.longitude | round(2)}}]</p>
-              <p><b>Zoom:</b> {{map.zoom}}</p>
+              <p><b>Center:</b> [[[fixed2(map.latitude)]], [[fixed2(map.longitude)]]] </p>
+              <p><b>Zoom:</b> [[map.zoom]]</p>
             </div>
-              <paper-button on-click="{{showMoscow}}" class="colored">Show Moscow</paper-button>
+              <paper-button on-click="showMoscow" class="colored">Show Moscow</paper-button>
           </div>
           <hr/>
           <h3>Map markers</h3>
           <div class="markers-list">
             <ol>
-              <template repeat="{{marker in markers}}">
-                <marker-item marker="{{marker}}" on-remove="{{removeMarker}}"></marker-item>
+              <template is="dom-repeat" items="{{markers}}" as="marker">
+                <marker-item marker="{{marker}}" on-remove="removeMarker"></marker-item>
               </template>
             </ol>
           </div>
-          <marker-new on-add="{{addMarker}}"></marker-new>
-          <paper-button on-click="{{addRandomMarker}}" class="colored">Add random point</paper-button>
-        </core-scroll-header-panel>
+          <marker-new on-add="addMarker"></marker-new>
+          <paper-button on-click="addRandomMarker" class="colored">Add random point</paper-button>
+        </paper-scroll-header-panel>
       </div>
     </template>
     <script>
-      Polymer('map-app', {
-        map: {
-          latitude: 42,
-          longitude: 24,
-          zoom: 8
+      Polymer({
+        is: 'map-app',
+
+        properties: {
+          markers: {
+            type: Array,
+            notify: true,
+            value: () => {
+              return []
+            }
+          },
+          map: {
+            type: Object,
+            value: () => {
+              return {
+                latitude: 42,
+                longitude: 24,
+                zoom: 8
+              };
+            }
+          }
         },
 
-        markers: [],
+        behaviors: [
+          UtilsBehavior
+        ],
 
-        ready: function() {
-          Array.apply(null, new Array(5)).forEach(this.addRandomMarker, this)
+        indexPlusOne(index) {
+          return index + 1;
         },
 
-        removeMarker: function(e, marker) {
-          this.markers.splice(this.markers.indexOf(marker), 1)
+        ready() {
+          Array.apply(null, new Array(5)).forEach(this.addRandomMarker, this);
         },
 
-        addMarker: function(e, marker) {
-          this.markers.push(marker);
+        removeMarker(e, marker) {
+          this.splice('markers', this.markers.indexOf(marker), 1);
         },
 
-        addRandomMarker: function() {
+        addMarker(e, marker) {
+          this.push('markers', marker);
+        },
+
+        addRandomMarker() {
           function random(from, to) {
             return from + Math.random() * (to - from);
           }
-          this.markers.push({
+          this.addMarker(undefined, {
             latitude: this.map.latitude + random(-5, 5),
             longitude: this.map.longitude + random(-5, 5)
           });
         },
 
-        showMoscow: function() {
-          this.map.latitude = 55.70;
-          this.map.longitude = 37.66;
-          this.map.zoom = 10;
+        showMoscow() {
+          const map = this.$.yamap;
+          map.latitude = 55.70;
+          map.longitude = 37.66;
+          map.zoom = 10;
         }
-      })
+      });
     </script>
-  </polymer-element>
+  </dom-module>
   </body>
 </html>
