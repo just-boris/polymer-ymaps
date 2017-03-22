@@ -14,19 +14,22 @@ describe('basic yandex-map', function() {
     expect(this.map.map.events.add.calledOnce).to.equal(true);
   });
 
-  it("should reflect bounds changes into properties", function () {
-    var args = this.map.map.events.add.firstCall.args;
+  it("should reflect bounds changes into properties", function (done) {
+    var map = this.map;
+    var args = map.map.events.add.firstCall.args;
     var handler = args[1];
     handler.call(args[2], new ymaps.YaEvent({newCenter: [55, 34], newZoom: 9}));
-    expect(this.map).to.have.property('latitude', 55);
-    expect(this.map).to.have.property('longitude', 34);
-    expect(this.map).to.have.property('zoom', 9);
+    setTimeout(function() {
+      expect(map).to.have.property('latitude', 55);
+      expect(map).to.have.property('longitude', 34);
+      expect(map).to.have.property('zoom', 9);
+      done();
+    }, 1);
   });
 
   it("should update map center after attribute changes", function () {
     this.map.latitude = 80;
     this.map.longitude = 33;
-    this.map.deliverChanges();
-    expect(this.map.map.setCenter.calledOnce).to.equal(true);
+    expect(this.map.map.setCenter.called).to.equal(true);
   });
 });

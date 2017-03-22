@@ -1,5 +1,6 @@
 (function(exports) {
     function YaEvent(data) {
+        this.stopImmediatePropagation = function() {};
         this.get = function(key) {
             return data[key];
         };

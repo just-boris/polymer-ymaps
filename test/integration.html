@@ -33,9 +33,9 @@
       var map = document.getElementById('map'),
           markers;
       waitFor(function() {
-        return markers = map.shadowRoot.querySelector('ymaps[class$="places-pane"]')
+        return markers = map.querySelector('ymaps[class$="places-pane"]')
       }, function() {
-        expect(markers.children.array()).to.have.length(2);
+        expect(markers.children).to.have.length(2);
         done();
       });
     });
